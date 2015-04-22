@@ -40,4 +40,3 @@ source_to_segment = '''<ph id="20">&lt;MadCap:variable name="MyVariables.AA"/&gt
  &lt;/sup&gt;</ept> 2003.'''
 subsegments = source_to_segment.split('.')
 print(subsegments)
-
