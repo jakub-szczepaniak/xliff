@@ -17,7 +17,7 @@ def new_filename(filename, suffix):
 
 
 def segmenthas_any_states(element, states):
-    
+
     return any(state in element.attrib.values() for state in states) or 'state' not in element.attrib.keys()
 
 
@@ -29,7 +29,7 @@ def split_xliff(filename):
         print(trans_unit)
 
 
-def clean_empty_state(filename):
+def clean_empty_state_from_xliff(filename):
 
     source_document = read_xliff_file(filename)
     review_document = deepcopy(source_document)
@@ -53,7 +53,7 @@ def clean_empty_state(filename):
 
 
 def main():
-    clean_empty_state('./sample/fmserver_es_GUI.ttk.xlf')
+    clean_empty_state_from_xliff('./sample/fmserver_es_GUI.ttk.xlf')
 
 if __name__ == "__main__":
     main()
