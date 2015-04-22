@@ -35,6 +35,23 @@ class TransUnit:
         return self.state in list_of_states
 
 
+class XLIFFDict:
+
+    def __init__(self, argument):
+        self.dict = dict()
+
+    @staticmethod
+    def create_from_file(filename):
+        new_dict = dict()
+        xliff = ET.parse(filename)
+        xliff_root = xliff.getroot()
+
+        for unit in xliff_root.iter('{}trans-unit'.format(NAMESPACE)):
+            tunit = TransUnit.create(unit)
+            new_dict[tunit.id] = tunit
+        return new_dict
+
+
 def read_xliff_file(filename):
 
     xliff = ET.parse(filename)
