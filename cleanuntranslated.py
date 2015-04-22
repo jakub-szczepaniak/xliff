@@ -8,6 +8,12 @@ def read_xliff_file(filename):
     return xliff_root
 
 
+def new_filename(filename, suffix):
+    broken = filename.split('.')
+    broken.insert(-1, suffix)
+    return ".".join(broken)
+
+
 def segmenthas_states(element, states):
     return any(state in element.attrib.values() for state in states) or 'state' not in element.attrib.keys()
 
@@ -20,13 +26,13 @@ def clean_empty_state(filename):
             target_segment.clear()
 
     newtree = ET.ElementTree(source_document)
-    newtree.write("{}.clean".format(filename),
+    newtree.write(new_filename(filename, 'clean'),
                   encoding='UTF-16',
                   xml_declaration=True)
 
 
 def main():
     clean_empty_state('./sample/fmserver_es_2003.ttk.xlf')
-    
+
 if __name__ == "__main__":
     main()
