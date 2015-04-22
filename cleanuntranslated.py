@@ -37,19 +37,46 @@ class TransUnit:
 
 class XLIFFDict:
 
-    def __init__(self, argument):
-        self.dict = dict()
+    "Container for xliff document"
+
+    def __init__(self):
+        self.segments = dict()
+        self.header = dict()
+        self.document = None
 
     @staticmethod
-    def create_from_file(filename):
-        new_dict = dict()
-        xliff = ET.parse(filename)
-        xliff_root = xliff.getroot()
+    def create(document):
 
-        for unit in xliff_root.iter('{}trans-unit'.format(NAMESPACE)):
+        new_xliff = XLIFFDict()
+        new_xliff.document = document
+
+        if isinstance(document, str):
+            new_xliff.document = ET.parse(document)
+        elif isinstance(document, ET._ElementTree):
+            new_xliff.document = document.getroot()
+        else:
+            new_xliff.document = document
+
+        header = new_xliff.document.find('{}file'.format(NAMESPACE))
+
+        if header is None:
+            raise Exception("XLIFF file not correct!")
+        else:
+            new_xliff.header = header.attrib
+
+        for unit in new_xliff.document.iter('{}trans-unit'.format(NAMESPACE)):
             tunit = TransUnit.create(unit)
-            new_dict[tunit.id] = tunit
-        return new_dict
+            new_xliff.segments[tunit.id] = tunit
+
+        return new_xliff
+
+    def serialize(self, new_filename):
+
+        new_document = ET.ElementTree(self.document)
+        new_document.write(
+            new_filename,
+            encoding='UTF-16',
+            xml_declaration=True)
 
 
 def read_xliff_file(filename):
@@ -76,23 +103,14 @@ def split_xliff(filename):
     pass
 
 
-def read_dict_of_units(xliff_root):
-    dict_of_units = dict()
-    for unit in xliff_root.iter(tag='{}trans-unit'.format(NAMESPACE)):
-        new_tu = TransUnit.create(unit)
-        if new_tu.has_any_state(['needs-review-l10n']):
-            dict_of_units[new_tu.id] = new_tu
-    return dict_of_units
-
-
 def clean_empty_state_from_xliff(filename):
 
     source_document = read_xliff_file(filename)
     review_document = deepcopy(source_document)
 
-    review_dict = read_dict_of_units(review_document)
-    print(review_dict)
+    review_dict = XLIFFDict.create(review_document)
 
+    review_dict.serialize("sample/new_file.xliff")
     for target_segment in source_document.iter(
             tag='{}target'.format(NAMESPACE)):
         if segmenthas_any_states(target_segment, [None, ""]):
