@@ -3,6 +3,38 @@ from copy import deepcopy
 NAMESPACE = '{urn:oasis:names:tc:xliff:document:1.2}'
 
 
+class TransUnit:
+
+    "Container for XLIFF trans-unit element"
+
+    def __init__(self, argument):
+        self.origin_unit = argument
+        self.attributes = argument.attrib
+        self.id = ''
+        self.state = ''
+
+    @staticmethod
+    def create(xml_tu):
+
+        tunit = TransUnit(xml_tu)
+        tunit.id = tunit.attributes['id']
+
+        tunit.state = tunit.__get_state_from_target()
+        return tunit
+
+    def __get_state_from_target(self):
+
+        target = self.origin_unit.find('{}target'.format(NAMESPACE))
+        if "state" in target.attrib.keys():
+            return target.attrib['state']
+        else:
+            return ''
+
+    def has_any_state(self, list_of_states):
+
+        return self.state in list_of_states
+
+
 def read_xliff_file(filename):
 
     xliff = ET.parse(filename)
@@ -18,26 +50,39 @@ def new_filename(filename, suffix):
 
 def segmenthas_any_states(element, states):
 
-    return any(state in element.attrib.values() for state in states) or 'state' not in element.attrib.keys()
+    return any(
+        state in element.attrib.values()
+        for state in states) or 'state' not in element.attrib.keys()
 
 
 def split_xliff(filename):
+    pass
 
-    source_document = read_xliff_file(filename)
 
-    for trans_unit in source_document.iter(tag='{}trans-unit'.format(NAMESPACE)):
-        print(trans_unit)
+def read_dict_of_units(xliff_root):
+    dict_of_units = dict()
+    for unit in xliff_root.iter(tag='{}trans-unit'.format(NAMESPACE)):
+        new_tu = TransUnit.create(unit)
+        if new_tu.has_any_state(['needs-review-l10n']):
+            dict_of_units[new_tu.id] = new_tu
+    return dict_of_units
 
 
 def clean_empty_state_from_xliff(filename):
 
     source_document = read_xliff_file(filename)
     review_document = deepcopy(source_document)
-    for target_segment in source_document.iter(tag='{}target'.format(NAMESPACE)):
+
+    review_dict = read_dict_of_units(review_document)
+    print(review_dict)
+
+    for target_segment in source_document.iter(
+            tag='{}target'.format(NAMESPACE)):
         if segmenthas_any_states(target_segment, [None, ""]):
             target_segment.clear()
 
-    for target_segment in review_document.iter(tag='{}target'.format(NAMESPACE)):
+    for target_segment in review_document.iter(
+            tag='{}target'.format(NAMESPACE)):
         if not segmenthas_any_states(target_segment, ['needs-review-l10n']):
             target_segment.getparent().clear()
 
