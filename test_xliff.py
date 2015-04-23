@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import patch
 from lxml import etree as ET
 from cleanuntranslated import XLIFFDict
 
@@ -10,7 +10,7 @@ class TestXliffDict(unittest.TestCase):
         self.from_string = r'''<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2"
  xmlns:gs4tr="http://www.gs4tr.org/schema/xliff-ext">
   <file datatype="x-CatalystTTK"
-  original="C:\Users\MILENGO_2\Desktop\FMAdmin_de.ttk"
+  original="C:\Users\Something_de.ttk"
   source-language="en-US"
   target-language="de"
   date="2015-03-04T12:56:08Z"
@@ -19,7 +19,7 @@ class TestXliffDict(unittest.TestCase):
   build-num="11.1.132.0" >
     <body>
       <group id="1-1032"
-      resname="\FaxUsageReport.resx" restype="x-Form">
+      resname="\resource.resx" restype="x-Form">
         <trans-unit id="tu-1" resname="$this"  maxwidth="0">
           <source></source>
           <target></target>
@@ -47,6 +47,14 @@ class TestXliffDict(unittest.TestCase):
 
         xlif_dict = XLIFFDict.create(xlf_element)
 
+        self.assertNotEqual(xlif_dict, None)
+
+    @patch('cleanuntranslated.ET')
+    def test_loaded_from_file_works(self, mock_ET):
+
+        mock_ET.parse.return_value = self.from_string
+
+        xlif_dict = XLIFFDict.create("filename")
         self.assertNotEqual(xlif_dict, None)
 
 
