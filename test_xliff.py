@@ -39,6 +39,10 @@ class TestXliffDict(unittest.TestCase):
         </file>
         </xliff>'''
 
+        self.xliff = ET.XML(self.from_string)
+
+        self.wrong_xml = ET.XML(r'''<abc></abc>''')
+
     def tearDown(self):
         pass
 
@@ -50,12 +54,33 @@ class TestXliffDict(unittest.TestCase):
         self.assertNotEqual(xlif_dict, None)
 
     @patch('cleanuntranslated.ET')
-    def test_loaded_from_file_works(self, mock_ET):
+    def test_it_loads_xliff_from_file(self, mock_ET):
 
-        mock_ET.parse.return_value = self.from_string
+        mock_ET.parse.return_value = self.xliff
 
-        xlif_dict = XLIFFDict.create("filename")
-        self.assertNotEqual(xlif_dict, None)
+        XLIFFDict.create("filename")
+        self.assertTrue(mock_ET.parse.called, True)
+
+    def test_internal_dict_is_not_empty(self):
+
+        new_xlf = XLIFFDict.create(self.xliff)
+
+        self.assertEqual(len(new_xlf.segments.values()), 3)
+
+    def test_header_is_not_empty(self):
+
+        new_xlf = XLIFFDict.create(self.xliff)
+
+        self.assertEqual(len(new_xlf.header.values()), 8)
+
+    def test_raises_exception_for_wrong_xml(self):
+
+        with self.assertRaises(Exception) as exc:
+            XLIFFDict.create(self.wrong_xml)
+        self.assertEqual(exc.exception.args[0], 'XLIFF file not correct!')
+
+
+
 
 
 if __name__ == '__main__':
