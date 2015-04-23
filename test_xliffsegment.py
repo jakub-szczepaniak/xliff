@@ -1,37 +1,76 @@
 import unittest
-from XLIFFSegment import XLIFFSegment
+from lxml import etree as ET
+from cleanuntranslated import TransUnit
 
 
-class TestXLIFFSegment(unittest.TestCase):
+class TestTransUnit(unittest.TestCase):
 
     def setUp(self):
-        self.xml_string = '''<trans-unit id="tu-3" resname="p">
+        self.not_empty_state = ET.fromstring('''<trans-unit id="tu-3" resname="p">
           <source>Source</source>
-          <target /><seg-source>The <ph id="31">&lt;MadCap:variable
-           name="MyVariables.AA"/&gt;</ph> installs an additional
-            toolbar in Microsoft Outlook<bpt id="0">&lt;sup&gt;</bpt>®
-            <ept id="0">&lt;/sup&gt;</ept> 2003.</seg-source>
-          </trans-unit>'''
-        self.empty_segment = '''<trans-unit id="tu-3" resname="p">
-        <source></source><target /></trans-unit>'''
+          <target state="signed-off">Sample target</target>
+          </trans-unit>''')
+        self.empty_state = ET.fromstring('''<trans-unit id="tu-3" resname="p">
+          <source>Source</source>
+          <target state="">Sample target</target>
+          </trans-unit>''')
+        self.no_state = ET.fromstring('''<trans-unit id="tu-3" resname="p">
+          <source>Source</source>
+          <target>Sample target</target>
+          </trans-unit>''')
+        self.unit_with_namespace = self._create_unit_with_namespace()
 
     def tearDown(self):
         pass
 
-    def test_source_text_without_tags(self):
-        trans_unit = XLIFFSegment(self.xml_string)
-        self.assertEqual(trans_unit.source, 'Source')
+    def _create_unit_with_namespace(self):
+        NAMESPACE = '{urn:oasis:names:tc:xliff:document:1.2}'
+        unit = ET.Element(
+            "{}trans_unit".format(NAMESPACE),
+            id='1',
+            resname='abc')
 
-    def test_text_is_empty(self):
-        trans_unit = XLIFFSegment(self.empty_segment)
+        ET.SubElement(unit, "{}source".format(NAMESPACE))
+        ET.SubElement(unit, "{}target".format(NAMESPACE))
 
-        self.assertEqual(trans_unit.target, '')
-        self.assertEqual(trans_unit.source, '')
+        return unit
 
-    def test_trans_unit_attribs(self):
-        trans_unit = XLIFFSegment(self.empty_segment)
+    def test_trans_unit_created_from_string(self):
 
-        self.assertEqual(trans_unit.attr['id'], "tu-3")
+        trans_unit = TransUnit.create(self.not_empty_state)
+
+        self.assertNotEqual(trans_unit, None)
+
+    def test_trans_unit_created_has_id(self):
+
+        trans_unit = TransUnit.create(self.not_empty_state)
+
+        self.assertEqual(trans_unit.id, "tu-3")
+
+    def test_trans_unit_with_state(self):
+
+        trans_unit = TransUnit.create(self.not_empty_state)
+
+        self.assertEqual(trans_unit.state, "signed-off")
+
+    def test_trans_unit_with_empty_state(self):
+
+        trans_unit = TransUnit.create(self.empty_state)
+
+        self.assertEqual(trans_unit.state, "")
+
+    def test_trans_unit_with_no_state(self):
+
+        trans_unit = TransUnit.create(self.no_state)
+
+        self.assertEqual(trans_unit.state, "")
+
+    def test_trans_unit_with_namespace_works(self):
+
+        trans_unit = TransUnit.create(self.unit_with_namespace)
+
+        self.assertNotEqual(trans_unit, None)
+
 
 if __name__ == '__main__':
     unittest.main()
