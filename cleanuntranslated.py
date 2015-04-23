@@ -1,5 +1,6 @@
 from lxml import etree as ET
-from copy import deepcopy
+import fnmatch
+import os
 NAMESPACE = '{urn:oasis:names:tc:xliff:document:1.2}'
 
 
@@ -103,37 +104,30 @@ def split_xliff(filename):
     pass
 
 
-def clean_empty_state_from_xliff(filename):
+def clean_empty_state_from_xliff(filename, targetFolder):
 
     source_document = read_xliff_file(filename)
-    review_document = deepcopy(source_document)
 
-    review_dict = XLIFFDict.create(review_document)
-
-    review_dict.serialize("sample/new_file.xliff")
     for target_segment in source_document.iter(
             tag='{}target'.format(NAMESPACE)):
         if segmenthas_any_states(target_segment, [None, ""]):
             target_segment.clear()
 
-    for target_segment in review_document.iter(
-            tag='{}target'.format(NAMESPACE)):
-        if not segmenthas_any_states(target_segment, ['needs-review-l10n']):
-            target_segment.getparent().clear()
-
-    for_review_tree = ET.ElementTree(review_document)
-    for_review_tree.write(
-        new_filename(filename, 'for_review'),
-        encoding='UTF-16',
-        xml_declaration=True)
     newtree = ET.ElementTree(source_document)
-    newtree.write(new_filename(filename, 'clean'),
+    newtree.write(os.path.join(targetFolder, filename),
                   encoding='UTF-16',
                   xml_declaration=True)
 
 
 def main():
-    clean_empty_state_from_xliff('./sample/fmserver_es_GUI.ttk.xlf')
+    targetFolder = 'targetSegmentsRemoved'
+    if not os.path.exists(targetFolder):
+        os.makedirs(targetFolder)
+    for filename in os.listdir():
+        if fnmatch.fnmatch(filename, "*.xlf"):
+            clean_empty_state_from_xliff(filename, targetFolder)
+            print("Processed :" + filename)
+    input("Press Enter to continue")
 
 if __name__ == "__main__":
     main()
