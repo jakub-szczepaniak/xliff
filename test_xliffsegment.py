@@ -71,6 +71,22 @@ class TestTransUnit(unittest.TestCase):
 
         self.assertNotEqual(trans_unit, None)
 
+    def test_has_any_state_true_if_exist(self):
+
+        trans_unit = TransUnit.create(self.not_empty_state)
+
+        self.assertEqual(
+            trans_unit.has_any_state(["signed-off"]),
+            True)
+
+    def test_has_any_state_false_if_not_exist(self):
+
+        trans_unit = TransUnit.create(self.not_empty_state)
+
+        self.assertEqual(
+            trans_unit.has_any_state(["not-translated"]),
+            False)
+
 
 if __name__ == '__main__':
     unittest.main()
