@@ -25,7 +25,7 @@ class TransUnit:
 
     def __get_state_from_target(self):
 
-        target = self.origin_unit.find('{}target'.format(NAMESPACE))
+        target = self.origin_unit.find('target'.format(NAMESPACE))
         if "state" in target.attrib.keys():
             return target.attrib['state']
         else:
