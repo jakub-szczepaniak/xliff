@@ -20,9 +20,6 @@ class TestTransUnit(unittest.TestCase):
           </trans-unit>''')
         self.unit_with_namespace = self._create_unit_with_namespace()
 
-    def tearDown(self):
-        pass
-
     def _create_unit_with_namespace(self):
         NAMESPACE = '{urn:oasis:names:tc:xliff:document:1.2}'
         unit = ET.Element(
@@ -34,6 +31,9 @@ class TestTransUnit(unittest.TestCase):
         ET.SubElement(unit, "{}target".format(NAMESPACE))
 
         return unit
+
+    def tearDown(self):
+        pass
 
     def test_trans_unit_created_from_string(self):
 

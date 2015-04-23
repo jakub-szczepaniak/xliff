@@ -12,16 +12,16 @@ class TransUnit:
         self.origin_unit = argument
         self.attributes = argument.attrib
         self.id = ''
-        self.state = ''
         self.ns = ''
+        self.state = ''
 
     @staticmethod
     def create(xml_tu):
 
         tunit = TransUnit(xml_tu)
+
         tunit.id = tunit.attributes['id']
         tunit.ns = tunit.__read_ns()
-
         tunit.state = tunit.__get_state_from_target()
         return tunit
 
