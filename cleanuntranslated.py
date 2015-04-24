@@ -22,10 +22,10 @@ class XLIFFDict:
 
         if isinstance(document, str):
             new_xliff.document = ET.parse(document)
-        elif isinstance(document, ET._ElementTree):
-            new_xliff.document = document.getroot()
-        else:
+        elif isinstance(document, ET._Element):
             new_xliff.document = document
+        else:
+            raise Exception("XLIFF file not correct!")
 
         header = new_xliff.document.find('{}file'.format(NAMESPACE))
 
