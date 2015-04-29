@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 from lxml import etree as ET
-from cleanuntranslated import XLIFFDict
+from xliffdict import XLIFFDict
 
 
 class TestXliffDict(unittest.TestCase):
@@ -53,7 +53,7 @@ class TestXliffDict(unittest.TestCase):
 
         self.assertNotEqual(xlif_dict, None)
 
-    @patch('cleanuntranslated.ET')
+    @patch('xliffdict.ET')
     def test_it_loads_xliff_from_file(self, mock_ET):
 
         mock_ET.parse.return_value = self.xliff
@@ -78,9 +78,6 @@ class TestXliffDict(unittest.TestCase):
         with self.assertRaises(Exception) as exc:
             XLIFFDict.create(self.wrong_xml)
         self.assertEqual(exc.exception.args[0], 'XLIFF file not correct!')
-
-
-
 
 
 if __name__ == '__main__':
