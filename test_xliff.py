@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+from unittest.mock import Mock
 from lxml import etree as ET
 from xliffdict import XLIFFDict
 
@@ -78,6 +79,22 @@ class TestXliffDict(unittest.TestCase):
         with self.assertRaises(Exception) as exc:
             XLIFFDict.create(self.wrong_xml)
         self.assertEqual(exc.exception.args[0], 'XLIFF file not correct!')
+
+    def test_raises_exception_for_wrong_object(self):
+        with self.assertRaises(Exception) as exc:
+            XLIFFDict.create(dict())
+        self.assertEqual(exc.exception.args[0], 'XLIFF file not correct!')
+
+    @unittest.skip("to be finished")
+    def test_saves_file_to_disk(self):
+        mock_ET = Mock(spec='xliffdict.ET.ElementTree')
+        mock_ET.parse.return_value = self.xliff
+
+        new_xlf = XLIFFDict.create(self.from_string)
+        new_xlf.serialize('filename')
+
+        mock_ET.assert_called_with('filename')
+
 
 
 if __name__ == '__main__':
