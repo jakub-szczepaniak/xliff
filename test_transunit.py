@@ -99,5 +99,17 @@ class TestTransUnit(unittest.TestCase):
 
         self.assertEqual(trans_unit._source, "changed_source")
 
+    def test_getter_for_target_works(self):
+
+        trans_unit = TransUnit.create(self.not_empty_state)
+
+        self.assertEqual(trans_unit.target, 'Sample target')
+
+    def test_settet_for_target_works(self):
+        trans_unit = TransUnit.create(self.not_empty_state)
+
+        trans_unit.target = "changed_target"
+
+        self.assertEqual(trans_unit._target, "changed_target")
 if __name__ == '__main__':
     unittest.main()

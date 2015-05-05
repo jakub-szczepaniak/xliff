@@ -9,6 +9,7 @@ class TransUnit(object):
         self.ns = ''
         self.state = ''
         self._source = ''
+        self._target = ''
 
     @staticmethod
     def create(xml_tu):
@@ -18,7 +19,8 @@ class TransUnit(object):
         tunit.id = tunit.attributes['id']
         tunit.ns = tunit._read_ns()
         tunit.state = tunit._get_state_from_target()
-
+        tunit._source = tunit.origin_unit.find('{}source'.format(tunit.ns))
+        tunit._target = tunit.origin_unit.find('{}target'.format(tunit.ns))
         return tunit
 
     def _read_ns(self):
@@ -46,10 +48,16 @@ class TransUnit(object):
 
     @property
     def source(self):
-
-        self._source = self.origin_unit.find('{}source'.format(self.ns))
         return self._source.text
 
     @source.setter
-    def source(self, valsource):
-        self._source = valsource
+    def source(self, value):
+        self._source = value
+
+    @property
+    def target(self):
+        return self._target.text
+
+    @target.setter
+    def target(self, value):
+        self._target = value
