@@ -87,6 +87,17 @@ class TestTransUnit(unittest.TestCase):
             trans_unit.has_any_state(["not-translated"]),
             False)
 
+    def test_getter_for_source_works(self):
+        trans_unit = TransUnit.create(self.not_empty_state)
+
+        self.assertEqual(trans_unit.source, 'Source')
+
+    def test_setter_for_source_works(self):
+        trans_unit = TransUnit.create(self.not_empty_state)
+
+        trans_unit.source = "changed_source"
+
+        self.assertEqual(trans_unit._source, "changed_source")
 
 if __name__ == '__main__':
     unittest.main()
