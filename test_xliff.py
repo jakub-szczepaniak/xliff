@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
 from unittest.mock import Mock
+from unittest.mock import create_autospec
 from lxml import etree as ET
 from xliffdict import XLIFFDict
 
@@ -85,15 +86,13 @@ class TestXliffDict(unittest.TestCase):
             XLIFFDict.create(dict())
         self.assertEqual(exc.exception.args[0], 'XLIFF file not correct!')
 
-    @unittest.skip("to be finished")
+    @unittest.skip
     def test_saves_file_to_disk(self):
-        mock_ET = Mock(spec='xliffdict.ET.ElementTree')
-        mock_ET.parse.return_value = self.xliff
+        mock_ET = create_autospec(ET.ElementTree)
+        new_xlif = XLIFFDict.create(self.xliff)
 
-        new_xlf = XLIFFDict.create(self.from_string)
-        new_xlf.serialize('filename')
-
-        mock_ET.assert_called_with('filename')
+        new_xlif.serialize('filename')
+        mock_ET.write.assert_called_with('filename')
 
 
 
