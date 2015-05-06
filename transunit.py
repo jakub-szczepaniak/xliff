@@ -19,9 +19,12 @@ class TransUnit(object):
         tunit.id = tunit.attributes['id']
         tunit.ns = tunit._read_ns()
         tunit.state = tunit._get_state_from_target()
-        tunit._source = tunit.origin_unit.find('{}source'.format(tunit.ns))
-        tunit._target = tunit.origin_unit.find('{}target'.format(tunit.ns))
+        tunit._source = tunit._read_content('source')
+        tunit._target = tunit._read_content('target')
         return tunit
+
+    def _read_content(self, tag):
+        return self.origin_unit.find('{}{}'.format(self.ns, tag))
 
     def _read_ns(self):
         if self._has_ns():
